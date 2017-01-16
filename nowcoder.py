@@ -1,12 +1,13 @@
-# encoding=UTF-8
+# -*- coding: UTF-8 -*-
 
 import requests
 
-content = requests.get('http://www.qiushibaike.com').content
-print 'hello'
+# content = requests.get('http://www.qiushibaike.com').content
+# print 'hello'
+
 
 def demo_list():
-     lista = [1, 2, 3]
+    lista = [1, 2, 3]
     print lista
     print len(lista)
 
@@ -17,6 +18,17 @@ def demo_list():
     print listb
 
 if __name__ == '__main__':
-    print '你好'
-    demo_list()
+    #print '你好'
+    #    demo_list()
+    #print isinstance('123', str)
+
+    visit_file = open('visit-has-new-visitor.log', 'r+')
+    try:
+        print visit_file.readline()
+        visit_file.seek(0)
+        visit_file.write('33')
+
+    finally:
+        visit_file.close()
+
 
