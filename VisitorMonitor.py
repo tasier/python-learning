@@ -61,7 +61,7 @@ class VisitorMonitor(object):
             serverLastAccessTime = str(stdout.read()).strip()
 
 
-            local_file = open(local_log_file, 'r+')
+            local_file = open(local_log_file, 'w+')
             try:
                 lastAccessTime = local_file.readline().strip()
 
