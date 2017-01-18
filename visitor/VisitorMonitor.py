@@ -2,6 +2,7 @@
 
 import sys
 import paramiko
+from VisitorDecorators import console_log
 
 
 class Account(object):
@@ -36,6 +37,7 @@ class VisitorMonitor(object):
             self.account = None
             self.server = None
 
+    @console_log
     def has_new_visitr(self):
         log_dir = '/var/lib/tomcat/webapps/hust1000/logs/'
         visit_log_file = 'visit.log'
@@ -58,25 +60,22 @@ class VisitorMonitor(object):
             # stat -c '%y,%Y' visit.log
             res = client.exec_command('cd '+log_dir+'; '+"stat -c '%y,%Y' "+visit_log_file)
             stdout = res[1]
-            serverLastAccessTime = str(stdout.read()).strip()
+            server_last_access_time = str(stdout.read()).strip()
 
+            with open(local_log_file, 'r+') as local_file:
+                last_access_time = local_file.readline().strip()
 
-            local_file = open(local_log_file, 'w+')
-            try:
-                lastAccessTime = local_file.readline().strip()
-
-                if cmp(serverLastAccessTime, lastAccessTime) == 0:
+                if cmp(server_last_access_time, last_access_time) == 0:
                     print 'There is no new visitor'
                     return False
                 else:
                     local_file.seek(0)
-                    local_file.write(serverLastAccessTime)
-                    access_date = str(serverLastAccessTime)[0:19]
-                    print 'New visitors had come at '+access_date
+                    local_file.write(server_last_access_time)
+                    access_date = str(server_last_access_time)[0:19]
+                    print 'New visitors had come at ' + access_date
                     return True
-            finally:
-                local_file.close()
-
+        except Exception, e:
+            print e
         finally:
             client.close()
 
@@ -90,7 +89,9 @@ if __name__ == '__main__':
     password = sys.argv[2]
     account = Account(username, password)
 
-    server = ServerSite('115.156.163.234', 22)
+    ip = '115.156.163.234'
+    port = 22
+    server = ServerSite(ip, port)
 
     visitor = VisitorMonitor(account, server)
     visitor.has_new_visitr()
