@@ -38,7 +38,7 @@ class VisitorMonitor(object):
             self.server = None
 
     @console_log
-    def has_new_visitr(self):
+    def has_new_visitor(self):
         log_dir = '/var/lib/tomcat/webapps/hust1000/logs/'
         visit_log_file = 'visit.log'
         local_log_file = 'visit-has-new-visitor.log'
@@ -80,6 +80,66 @@ class VisitorMonitor(object):
             client.close()
 
 
+    @console_log
+    def ip_statistics(self):
+        log_dir = '/var/lib/tomcat/webapps/hust1000/logs/'
+        visit_log_file = 'visit.log'
+
+        try:
+            client = paramiko.SSHClient()
+            client.load_system_host_keys()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            hostname = self.server.ip
+            port = self.server.port
+
+            username = self.account.username
+            password = self.account.password
+
+            client.connect(hostname=hostname, port=port, username=username, password=password)
+
+            #cat /var/lib/tomcat/webapps/hust1000/logs/visit.log
+            res = client.exec_command('cat '+log_dir+visit_log_file)
+            stdout = res[1]
+            #获取日志内容
+            filecontent = str(stdout.read()).strip().split('\n')
+
+            #截取 ip和时间 信息
+            ip_accesstime = [line.strip().split(',')[-2::-1] for line in filecontent]
+
+
+            #统计 ip-访问次数
+            ips = [item[0] for item in ip_accesstime]
+            ip_to_num = {}
+            for ip in ips:
+                if ip not in ip_to_num:
+                    ip_to_num[ip] = 1
+                else:
+                    ip_to_num[ip] += 1
+
+            print '------Ip-VisitTimes-------'
+            for item in ip_to_num:
+                print item, '-', ip_to_num[item]
+
+
+            #统计 ip-最后访问时间
+            ip_to_lastaccesstime = {}
+            maxFunc = lambda x, y: x if cmp(x, y) else y
+            for item in ip_accesstime:
+                ip = item[0]
+                time = item[1]
+                if ip not in ip_to_lastaccesstime:
+                    ip_to_lastaccesstime[ip] = time
+                else:
+                    ip_to_lastaccesstime[ip] = maxFunc(time, ip_to_lastaccesstime[ip])
+
+            print '------Ip-LastAccessTime-------'
+            for item in ip_to_lastaccesstime:
+                print item, '-', ip_to_lastaccesstime[item]
+
+        finally:
+            client.close()
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print 'Please input username and password !'
@@ -94,5 +154,6 @@ if __name__ == '__main__':
     server = ServerSite(ip, port)
 
     visitor = VisitorMonitor(account, server)
-    visitor.has_new_visitr()
+    visitor.has_new_visitor()
+    visitor.ip_statistics()
 
