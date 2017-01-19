@@ -17,18 +17,30 @@ def demo_list():
     print lista+listb
     print listb
 
+
+def counter(start_at=0):
+    count = [start_at]
+
+    def incr():
+        count[0] += 1
+        return count
+    return incr
+
+
+x = 10
+def foo():
+    y = 2
+    bar = lambda :x+y
+    print bar()
+
 if __name__ == '__main__':
     #print '你好'
     #    demo_list()
     #print isinstance('123', str)
 
-    visit_file = open('visit-has-new-visitor.log', 'r+')
-    try:
-        print visit_file.readline()
-        visit_file.seek(0)
-        visit_file.write('33')
 
-    finally:
-        visit_file.close()
+    #闭包实验
+    #对装饰器的理解有重要作用
+    # print counter(3)()
 
-
+    foo()
