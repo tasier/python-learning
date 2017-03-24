@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 import requests
+import random
+from time import sleep
 
 # content = requests.get('http://www.qiushibaike.com').content
 # print 'hello'
@@ -43,4 +45,8 @@ if __name__ == '__main__':
     #对装饰器的理解有重要作用
     # print counter(3)()
 
-    foo()
+    # foo()
+
+    random_time = random.random()
+    print random_time
+    sleep(random_time+1)
